@@ -3,7 +3,7 @@ import 'package:code_test_flutter/core/platform_meta.dart';
 
 class RippleEffect extends StatelessWidget {
   final Widget child;
-  final Function? onTap;
+  final VoidCallback? onTap;
   final Color splashColor;
   final BorderRadius borderRadius;
   final PlatformMeta platform;
@@ -19,10 +19,9 @@ class RippleEffect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final listener = onTap != null ? onTap as void Function()? : () {};
     if (platform.isIos) {
       return GestureDetector(
-        onTap: listener,
+        onTap: onTap,
         child: child,
       );
     } else {
@@ -32,7 +31,7 @@ class RippleEffect extends StatelessWidget {
           child: InkWell(
             customBorder: RoundedRectangleBorder(borderRadius: borderRadius),
             splashColor: splashColor,
-            onTap: listener,
+            onTap: onTap,
             child: child,
           ));
     }
