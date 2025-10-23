@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:code_test_flutter/data/api/entities/photo_api_model.dart';
-import 'package:code_test_flutter/inject/app_module.dart';
+import 'package:code_test_flutter/inject/app_injector.dart';
+import 'package:code_test_flutter/data/api/photos_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<HomeBloc>(
-      create: (_) => HomeBloc(AppModule.api)..add(const HomeEvent.init()),
+      create: (_) => HomeBloc(getIt<PhotosApi>())..add(const HomeEvent.init()),
       child: BlocBuilder<HomeBloc, HomeData>(
         builder: (context, state) {
           if (state.loadState == LoadState.empty) {
@@ -68,7 +69,8 @@ class _PhotosSection extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: () async {
         final bloc = context.read<HomeBloc>();
-        final future = bloc.stream.firstWhere((s) => s.loadState == LoadState.data);
+        final future =
+            bloc.stream.firstWhere((s) => s.loadState == LoadState.data);
         bloc.add(const HomeEvent.refresh());
         await future;
       },
@@ -192,7 +194,9 @@ class _PhotoInfo extends StatelessWidget {
         ),
         decoration: BoxDecoration(color: ColorName.secondary),
         child: Text(
-          (photo.description?.isNotEmpty ?? false) ? photo.description! : Strings.noContentPlaceholder,
+          (photo.description?.isNotEmpty ?? false)
+              ? photo.description!
+              : Strings.noContentPlaceholder,
           maxLines: 1,
           style: TextStyles.textNormal,
         ),
