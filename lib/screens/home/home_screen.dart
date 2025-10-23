@@ -103,8 +103,11 @@ class _PhotosSectionContent extends StatelessWidget {
         ),
       );
     }
+
+    final topPadding = MediaQuery.of(context).padding.top + 20;
+    final bottomPadding = MediaQuery.of(context).padding.bottom + 20;
     return GridView.builder(
-      padding: const EdgeInsets.only(right: 64, top: 8, bottom: 8),
+      padding: EdgeInsets.fromLTRB(20, topPadding, 20, bottomPadding),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 24,
