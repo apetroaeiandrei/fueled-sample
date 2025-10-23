@@ -1,6 +1,6 @@
 import 'package:code_test_flutter/core/navigation/route_provider.dart';
 import 'package:code_test_flutter/core/routes.dart';
-import 'package:code_test_flutter/ui/home/home_screen.dart';
+import 'package:code_test_flutter/screens/home/home_screen.dart';
 
 class MainRouteProvider extends RouteProvider {
   @override

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:code_test_flutter/data/api/entities/photo_api_model.dart';
 import 'package:code_test_flutter/data/api/photos_api.dart';
-import 'package:code_test_flutter/core/contracts/home_contract.dart';
+import 'package:code_test_flutter/screens/home/home_contract.dart';
 import 'package:code_test_flutter/core/load_state.dart';
 
 class HomeBloc {

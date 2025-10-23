@@ -1,4 +1,4 @@
-import 'package:code_test_flutter/blocs/home_bloc.dart';
+import 'package:code_test_flutter/screens/home/home_bloc.dart';
 import 'package:code_test_flutter/data/api/photos_api.dart';
 import 'package:code_test_flutter/data/api/unsplash_client.dart';
 import 'package:dio/dio.dart';
