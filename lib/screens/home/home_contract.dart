@@ -7,6 +7,7 @@ part 'home_contract.freezed.dart';
 @freezed
 abstract class HomeEvent with _$HomeEvent {
   const factory HomeEvent.init() = Init;
+  const factory HomeEvent.refresh() = Refresh;
 }
 
 ///

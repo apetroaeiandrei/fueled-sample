@@ -2,6 +2,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:code_test_flutter/data/api/entities/photo_api_model.dart';
 import 'package:code_test_flutter/inject/app_module.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:code_test_flutter/screens/home/home_bloc.dart';
 import 'package:code_test_flutter/screens/home/home_contract.dart';
 import 'package:code_test_flutter/core/load_state.dart';
@@ -20,29 +22,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final HomeBloc bloc;
-
-  @override
-  void initState() {
-    super.initState();
-    bloc = AppModule.bloc;
-    bloc.initialize();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: bloc.stream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+    return BlocProvider<HomeBloc>(
+      create: (_) => HomeBloc(AppModule.api)..add(const HomeEvent.init()),
+      child: BlocBuilder<HomeBloc, HomeData>(
+        builder: (context, state) {
+          if (state.loadState == LoadState.empty) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          final data = snapshot.data!;
           return Scaffold(
-            body: _HomeContent(data: data),
+            body: _HomeContent(data: state),
           );
-        });
+        },
+      ),
+    );
   }
 }
 
@@ -71,10 +65,12 @@ class _PhotosSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = AppModule.bloc;
     return RefreshIndicator(
       onRefresh: () async {
-        await bloc.initialize();
+        final bloc = context.read<HomeBloc>();
+        final future = bloc.stream.firstWhere((s) => s.loadState == LoadState.data);
+        bloc.add(const HomeEvent.refresh());
+        await future;
       },
       child: Stack(
         children: [
@@ -152,14 +148,15 @@ class _PhotoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final radius = Radius.circular(8);
     return RippleEffect(
-      onTap: () => {},
+      onTap: () {},
       child: SizedBox(
         height: 200,
         child: Padding(
           padding: EdgeInsets.only(
-              left: isLeftItem ? 0 : 8,
-              right: !isLeftItem ? 0 : 8,
-              bottom: 16),
+            left: isLeftItem ? 0 : 8,
+            right: !isLeftItem ? 0 : 8,
+            bottom: 16,
+          ),
           child: ClipRRect(
             borderRadius: BorderRadius.all(radius),
             child: Stack(
@@ -190,12 +187,12 @@ class _PhotoInfo extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.symmetric(
-            horizontal: 16, vertical: 8),
+          horizontal: 16,
+          vertical: 8,
+        ),
         decoration: BoxDecoration(color: ColorName.secondary),
         child: Text(
-          (photo.description?.isNotEmpty ?? false)
-              ? photo.description!
-              : Strings.noContentPlaceholder,
+          (photo.description?.isNotEmpty ?? false) ? photo.description! : Strings.noContentPlaceholder,
           maxLines: 1,
           style: TextStyles.textNormal,
         ),
