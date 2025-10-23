@@ -74,11 +74,7 @@ class _PhotosSection extends StatelessWidget {
         bloc.add(const HomeEvent.refresh());
         await future;
       },
-      child: Stack(
-        children: [
-          _PhotosSectionContent(photos),
-        ],
-      ),
+      child: _PhotosSectionContent(photos),
     );
   }
 }
