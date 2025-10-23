@@ -81,41 +81,11 @@ class _PhotosSection extends StatelessWidget {
 
 class _PhotosSectionContent extends StatelessWidget {
   final List<PhotoApiModel> photos;
-  final List<Widget> rows = [];
 
-  _PhotosSectionContent(this.photos);
+  const _PhotosSectionContent(this.photos);
 
   @override
   Widget build(BuildContext context) {
-    for (int i = 0; i < photos.length; i += 2) {
-      rows.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            // First photo (always present)
-            Expanded(
-              child: _PhotoItem(
-                photo: photos[i],
-                isLeftItem: true,
-              ),
-            ),
-
-            const SizedBox(width: 8),
-
-            // Second photo (if exists, else empty space)
-            if (i + 1 < photos.length)
-              Expanded(
-                child: _PhotoItem(
-                  photo: photos[i + 1],
-                  isLeftItem: false,
-                ),
-              )
-            else
-              const Expanded(child: SizedBox()),
-          ],
-        ),
-      ));
-    }
     if (photos.isEmpty) {
       return Center(
         child: Text(
@@ -123,50 +93,43 @@ class _PhotosSectionContent extends StatelessWidget {
           style: TextStyles.textNormal,
         ),
       );
-    } else if (photos.isNotEmpty) {
-      return SingleChildScrollView(
-        padding: const EdgeInsets.only(right: 64),
-        child: Column(
-          children: rows,
-        ),
-      );
-    } else {
-      return SizedBox.shrink();
     }
+    return GridView.builder(
+      padding: const EdgeInsets.only(right: 64, top: 8, bottom: 8),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 24,
+        mainAxisSpacing: 16,
+        mainAxisExtent: 200,
+      ),
+      itemCount: photos.length,
+      itemBuilder: (context, index) {
+        return _PhotoItem(photo: photos[index]);
+      },
+    );
   }
 }
 
 class _PhotoItem extends StatelessWidget {
   final PhotoApiModel photo;
-  final bool isLeftItem;
 
-  const _PhotoItem({required this.photo, required this.isLeftItem});
+  const _PhotoItem({required this.photo});
 
   @override
   Widget build(BuildContext context) {
     final radius = Radius.circular(8);
     return RippleEffect(
       onTap: () {},
-      child: SizedBox(
-        height: 200,
-        child: Padding(
-          padding: EdgeInsets.only(
-            left: isLeftItem ? 0 : 8,
-            right: !isLeftItem ? 0 : 8,
-            bottom: 16,
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.all(radius),
-            child: Stack(
-              children: <Widget>[
-                _PhotoImage(
-                  image: photo.urls.thumb,
-                  photoId: photo.id,
-                ),
-                _PhotoInfo(photo: photo)
-              ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.all(radius),
+        child: Stack(
+          children: <Widget>[
+            _PhotoImage(
+              image: photo.urls.thumb,
+              photoId: photo.id,
             ),
-          ),
+            _PhotoInfo(photo: photo)
+          ],
         ),
       ),
     );
