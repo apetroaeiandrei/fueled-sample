@@ -13,6 +13,9 @@ import 'package:code_test_flutter/gen/colors.gen.dart';
 import 'package:code_test_flutter/res/styles.dart';
 import 'package:code_test_flutter/ui/util/touch_effects.dart';
 
+import 'package:code_test_flutter/extensions/navigation_extensions.dart';
+import 'package:code_test_flutter/core/routes.dart';
+
 import '../../res/strings.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -119,7 +122,9 @@ class _PhotoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final radius = Radius.circular(8);
     return RippleEffect(
-      onTap: () {},
+      onTap: () {
+        context.navigate(Routes.photoDetailScreen, extra: photo);
+      },
       child: ClipRRect(
         borderRadius: BorderRadius.all(radius),
         child: Stack(
