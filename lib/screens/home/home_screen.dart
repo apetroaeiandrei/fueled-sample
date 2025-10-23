@@ -32,11 +32,18 @@ class _HomeScreenState extends State<HomeScreen> {
       create: (_) => HomeBloc(getIt<PhotosApi>())..add(const HomeEvent.init()),
       child: BlocBuilder<HomeBloc, HomeData>(
         builder: (context, state) {
-          if (state.loadState == LoadState.empty) {
-            return const Center(child: CircularProgressIndicator());
-          }
           return Scaffold(
-            body: _HomeContent(data: state),
+            body: RefreshIndicator(
+              onRefresh: () async {
+                final bloc = context.read<HomeBloc>();
+                final future = bloc.stream.firstWhere(
+                  (s) => s.loadState != LoadState.loading,
+                );
+                bloc.add(const HomeEvent.refresh());
+                await future;
+              },
+              child: _BodySwitcher(state: state),
+            ),
           );
         },
       ),
@@ -44,41 +51,40 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _HomeContent extends StatelessWidget {
-  final HomeData data;
+class _BodySwitcher extends StatelessWidget {
+  final HomeData state;
 
-  const _HomeContent({required this.data});
+  const _BodySwitcher({required this.state});
 
   @override
   Widget build(BuildContext context) {
-    switch (data.loadState) {
-      case LoadState.data:
-        return _PhotosSection(
-          data.photos,
-        );
+    switch (state.loadState) {
+      case LoadState.loading:
       case LoadState.empty:
-        return Container();
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+        );
+      case LoadState.error:
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: Center(
+              child: Text(
+                state.errorMessage ?? '',
+                style: TextStyles.textNormal,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        );
+      case LoadState.data:
+        return _PhotosSectionContent(state.photos);
     }
-  }
-}
-
-class _PhotosSection extends StatelessWidget {
-  final List<PhotoApiModel> photos;
-
-  const _PhotosSection(this.photos);
-
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        final bloc = context.read<HomeBloc>();
-        final future =
-            bloc.stream.firstWhere((s) => s.loadState == LoadState.data);
-        bloc.add(const HomeEvent.refresh());
-        await future;
-      },
-      child: _PhotosSectionContent(photos),
-    );
   }
 }
 
@@ -158,9 +164,7 @@ class _PhotoInfo extends StatelessWidget {
         ),
         decoration: BoxDecoration(color: ColorName.secondary),
         child: Text(
-          (photo.description?.isNotEmpty ?? false)
-              ? photo.description!
-              : Strings.noContentPlaceholder,
+          (photo.description?.isNotEmpty ?? false) ? photo.description! : Strings.noContentPlaceholder,
           maxLines: 1,
           style: TextStyles.textNormal,
         ),
