@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:code_test_flutter/blocs/home_bloc.dart';
-import 'package:code_test_flutter/core/contracts/home_contract.dart';
+import 'package:code_test_flutter/screens/home/home_bloc.dart';
+import 'package:code_test_flutter/screens/home/home_contract.dart';
 import 'package:code_test_flutter/data/api/entities/common.dart';
 import 'package:code_test_flutter/data/api/photos_api.dart';
 import 'package:dio/dio.dart';
